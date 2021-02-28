@@ -1,24 +1,21 @@
-import * as React from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StatusBar,
   Image,
   FlatList,
   Dimensions,
   Animated,
-  Text,
   View,
   StyleSheet,
   SafeAreaView,
 } from "react-native";
 const { width } = Dimensions.get("screen");
-import { EvilIcons } from "@expo/vector-icons";
 import {
   FlingGestureHandler,
   Directions,
   State,
 } from "react-native-gesture-handler";
 
-import { DATA } from "res/data";
 
 const OVERFLOW_HEIGHT = 70;
 const SPACING = 10;
@@ -26,61 +23,20 @@ const ITEM_WIDTH = width * 0.76;
 const ITEM_HEIGHT = ITEM_WIDTH * 1.7;
 const VISIBLE_ITEMS = 3;
 
-const OverflowItems = ({ data, scrollXAnimated }: any) => {
-  const inputRange = [-1, 0, 1];
-  const translateY = scrollXAnimated.interpolate({
-    inputRange,
-    outputRange: [OVERFLOW_HEIGHT, 0, -OVERFLOW_HEIGHT],
-  });
-  return (
-    <View style={styles.overflowContainer}>
-      <Animated.View style={{ transform: [{ translateY }] }}>
-        {data.map((item: any, index: number) => {
-          return (
-            <View key={index} style={styles.itemContainer}>
-              <Text style={[styles.title]} numberOfLines={1}>
-                {item.title}
-              </Text>
-              <View style={styles.itemContainerRow}>
-                <Text style={[styles.location]}>
-                  <EvilIcons
-                    name="location"
-                    size={16}
-                    color="black"
-                    style={{ marginRight: 5 }}
-                  />
-                  {item.location}
-                </Text>
-                <Text style={[styles.date]}>{item.date}</Text>
-              </View>
-            </View>
-          );
-        })}
-      </Animated.View>
-    </View>
-  );
-};
-
-export const HomeScreen = () => {
-  const [data, setData] = React.useState(DATA);
-  const scrollXIndex = React.useRef(new Animated.Value(0)).current;
-  const scrollXAnimated = React.useRef(new Animated.Value(0)).current;
-  const [index, setIndex] = React.useState(0);
-  const setActiveIndex = React.useCallback((activeIndex: number) => {
+export const CardList = (props: any) => {
+  const [cards, setCards] = useState([]);
+  const [index, setIndex] = useState(0);
+  const scrollXIndex = useRef(new Animated.Value(0)).current;
+  const scrollXAnimated = useRef(new Animated.Value(0)).current;
+  const setActiveIndex = useCallback((activeIndex: number) => {
     scrollXIndex.setValue(activeIndex);
     setIndex(activeIndex);
   }, []);
+  useEffect(() => {
+    setCards(props.cardList);
+  }, []);
 
-  React.useEffect(() => {
-    if (index === data.length - VISIBLE_ITEMS - 1) {
-      // get new data
-      // fetch more data
-      const newData = [...data, ...data];
-      setData(newData);
-    }
-  });
-
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.spring(scrollXAnimated, {
       toValue: scrollXIndex,
       useNativeDriver: true,
@@ -93,7 +49,7 @@ export const HomeScreen = () => {
       direction={Directions.LEFT}
       onHandlerStateChange={(ev) => {
         if (ev.nativeEvent.state === State.END) {
-          if (index === data.length - 1) {
+          if (index === cards.length - 1) {
             return;
           }
           setActiveIndex(index + 1);
@@ -114,9 +70,8 @@ export const HomeScreen = () => {
       >
         <SafeAreaView style={styles.container}>
           <StatusBar hidden />
-          <OverflowItems data={data} scrollXAnimated={scrollXAnimated} />
           <FlatList
-            data={data}
+            data={cards}
             keyExtractor={(_, index) => String(index)}
             horizontal
             inverted
@@ -130,12 +85,17 @@ export const HomeScreen = () => {
             removeClippedSubviews={false}
             CellRendererComponent={({
               item,
-              index,
+              index: indexC,
               children,
               style,
               ...props
             }) => {
-              const newStyle = [style, { zIndex: data.length - index }];
+              const [zIndex, setZIndex] = React.useState(0);
+              React.useEffect(() => {
+                setZIndex(indexC === index ? 1 : 0);
+              }, []);
+
+              const newStyle = [style, { zIndex }];
               return (
                 <View style={newStyle} index={index} {...props}>
                   {children}
@@ -146,15 +106,16 @@ export const HomeScreen = () => {
               const inputRange = [index - 1, index, index + 1];
               const translateX = scrollXAnimated.interpolate({
                 inputRange,
-                outputRange: [50, 0, -100],
+                outputRange: [50, 0, -50],
               });
+
               const scale = scrollXAnimated.interpolate({
                 inputRange,
-                outputRange: [0.8, 1, 1.3],
+                outputRange: [0.8, 1, 0.8],
               });
               const opacity = scrollXAnimated.interpolate({
                 inputRange,
-                outputRange: [1 - 1 / VISIBLE_ITEMS, 1, 0],
+                outputRange: [1 - 1 / VISIBLE_ITEMS, 1, 1 - 1 / VISIBLE_ITEMS],
               });
 
               return (
@@ -188,8 +149,6 @@ export const HomeScreen = () => {
     </FlingGestureHandler>
   );
 };
-
-// export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
