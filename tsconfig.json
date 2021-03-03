@@ -11,8 +11,14 @@
     "allowJs": true,
     "baseUrl": "./",
     "paths": {
+      "components/*": [
+        "./src/components/*"
+      ],
       "res/*": [
         "./src/res/*"
+      ],
+      "library/*": [
+        "./src/library/*"
       ],
     }
   },
