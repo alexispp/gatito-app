@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import {
   StatusBar,
   Image,
@@ -16,6 +23,7 @@ import {
   State,
 } from "react-native-gesture-handler";
 
+import { ICard } from "./Card.type";
 
 const OVERFLOW_HEIGHT = 70;
 const SPACING = 10;
@@ -23,11 +31,14 @@ const ITEM_WIDTH = width * 0.76;
 const ITEM_HEIGHT = ITEM_WIDTH * 1.7;
 const VISIBLE_ITEMS = 3;
 
-export const CardList = (props: any) => {
+export const moveLeft = () => {};
+
+export const CardList = forwardRef((props: any, ref) => {
   const [cards, setCards] = useState([]);
   const [index, setIndex] = useState(0);
   const scrollXIndex = useRef(new Animated.Value(0)).current;
   const scrollXAnimated = useRef(new Animated.Value(0)).current;
+
   const setActiveIndex = useCallback((activeIndex: number) => {
     scrollXIndex.setValue(activeIndex);
     setIndex(activeIndex);
@@ -42,6 +53,15 @@ export const CardList = (props: any) => {
       useNativeDriver: true,
     }).start();
   });
+
+  useImperativeHandle(ref, () => ({
+    moveLeft: () => {
+      setActiveIndex(index === 0 ? 0 : index - 1);
+    },
+    moveRight: () => {
+      setActiveIndex(index === cards.length - 1 ? cards.length - 1 : index + 1);
+    },
+  }));
 
   return (
     <FlingGestureHandler
@@ -102,7 +122,7 @@ export const CardList = (props: any) => {
                 </View>
               );
             }}
-            renderItem={({ item, index }) => {
+            renderItem={({ item, index }: { item: ICard; index: number }) => {
               const inputRange = [index - 1, index, index + 1];
               const translateX = scrollXAnimated.interpolate({
                 inputRange,
@@ -133,7 +153,7 @@ export const CardList = (props: any) => {
                   }}
                 >
                   <Image
-                    source={{ uri: item.poster }}
+                    source={{ uri: item.url }}
                     style={{
                       width: ITEM_WIDTH,
                       height: ITEM_HEIGHT,
@@ -148,7 +168,7 @@ export const CardList = (props: any) => {
       </FlingGestureHandler>
     </FlingGestureHandler>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

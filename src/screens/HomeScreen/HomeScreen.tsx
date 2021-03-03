@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import {
   StatusBar,
   Image,
@@ -20,23 +20,53 @@ import {
 } from "react-native-gesture-handler";
 
 import { CardList } from "../../components/CardList/CardList";
+import { getCatPics } from "library/networking";
 
-import { DATA } from "res/data";
 
 const DIMENSIONS = Dimensions.get("window");
 
 export const HomeScreen = (props: any) => {
-  useEffect(() => {}, []);
+  const [catPics, setCatPics] = useState([]);
+  const list:any = useRef();
+
+  useEffect(() => {
+    (async () => {
+      const response = await getCatPics();
+      setCatPics(response);
+    })();
+  }, []);
+
+
+  const picBack = () => {
+    console.log("picBack", list.current.moveLeft());
+  };
+  const picFw = () => {
+    console.log("picFw", list.current.moveRight());
+  };
 
   return (
     <>
       <CardList
-        cardList={DATA}
+        cardList={catPics}
         style={{
-          flex: 1,
           width: DIMENSIONS.width,
         }}
+        ref={list}
       />
+      <View
+        style={{
+          justifyContent: "space-evenly",
+          flexDirection: "row",
+        }}
+      >
+        <Button onPress={picBack} title="<" color="#841584" />
+        <Button
+          onPress={picFw}
+          title=">"
+          color="#841584"
+          accessibilityLabel="Learn more about this purple button"
+        />
+      </View>
     </>
   );
 };
