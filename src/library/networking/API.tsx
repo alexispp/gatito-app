@@ -2,7 +2,7 @@ import axios from "axios";
 // @ts-ignore
 import { API_KEY } from "@env";
 // import { API_KEY } from "react-native-dotenv";
-import { ICard } from "components/CardList/Card.type";
+import { ICard } from "src-notUsedInThisProject/CardList/Card.type";
 
 // const axiosInstance = axios.create({
 //   baseURL: "https://api.thecatapi.com",

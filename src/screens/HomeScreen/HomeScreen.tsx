@@ -1,14 +1,15 @@
-import React, { useState, useRef } from "react";
+import React from "react";
+import { StatusBar, View } from "react-native";
 
-import { CardList } from "../../components/CardList/CardList";
+import { CatList } from "components/CatList/CatList";
+import { ButtonPanel } from "components/ButtonPanel/ButtonPanel";
 
 export const HomeScreen = () => {
-  const [catPics, setCatPics] = useState([]);
-  const list: any = useRef();
-
   return (
-    <>
-      <CardList cardList={catPics} onTouch={() => {}} ref={list} />
-    </>
+    <View style={{ flex: 1, backgroundColor: "#000" }}>
+      <StatusBar hidden />
+      <CatList />
+      <ButtonPanel />
+    </View>
   );
 };
