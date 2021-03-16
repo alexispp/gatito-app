@@ -246,7 +246,7 @@ const data = [
 
 export const CatList = () => {
   const scrollX = useRef(new Animated.Value(0)).current;
-  
+
   return (
     <>
       <View style={StyleSheet.absoluteFillObject}>
@@ -308,3 +308,4 @@ export const CatList = () => {
     </>
   );
 };
+
